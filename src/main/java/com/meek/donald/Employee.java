@@ -20,7 +20,7 @@ public class Employee {
 	private String addr;
 	@NotNull
 	private Integer soch;
-	
+
 	public Integer getEmplid() {
 		return emplid;
 	}

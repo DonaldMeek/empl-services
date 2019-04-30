@@ -24,8 +24,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return null;
 	}
 	
-	public Optional<Employee> getEmployeeById(String employeeId) {
-		return employeeRepository.findById(
-				Integer.getInteger(employeeId));
+	public Employee getEmployeeById(String employeeId) {
+		Employee empl = null;
+		Integer emplId = Integer.parseInt(employeeId, 10);
+		Optional<Employee> employee = employeeRepository.findById(emplId);
+		if (employee.isPresent() == true) {
+			empl = employee.get();
+			return empl;
+		}
+		
+		return null;
 	}
 }

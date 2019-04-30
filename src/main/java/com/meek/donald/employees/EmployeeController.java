@@ -2,18 +2,23 @@ package com.meek.donald.employees;
 
 import java.io.IOException;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meek.donald.Employee;
+import com.meek.donald.common.SerializationUtil;
+import com.meek.donald.model.employee.EmployeeModel;
 
 @RestController
 @RequestMapping("/service")
@@ -22,12 +27,13 @@ public class EmployeeController {
 	@Autowired
 	private EmployeeServiceImpl emplService;
 
-	@PostMapping("/empl")
+	@PostMapping(value="/empl", consumes=MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody String saveEmployee(@RequestBody String empl) {
 		Employee employee = null;
 		EmployeeModel employeeModel = null;
 		try {
-			employeeModel = new ObjectMapper().readValue(empl, EmployeeModel.class);
+			employeeModel = (EmployeeModel) SerializationUtil.getBean(
+					empl, EmployeeModel.class);
 			employee = EmployeeTransformer.transformEmployeeModel(employeeModel);
 			employee = emplService.saveEmployee(employee);
 			
@@ -42,15 +48,19 @@ public class EmployeeController {
 		return null;
 	}
 	
-	@GetMapping("/empl/id")
-	public @ResponseBody Employee getEmployeeById(@RequestBody String emplId) {
-		Optional<Employee> employee = null;
-		String employeeId= null;
+	@RequestMapping(value="/empl/id", method=RequestMethod.POST, 
+			consumes=MediaType.APPLICATION_JSON_VALUE,
+			produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseEntity<String> getEmployeeById(
+			@RequestBody String request) {
+		Object employeeId = null;
 		try {
-			employeeId = new ObjectMapper().readValue(emplId, String.class);
-			employee = emplService.getEmployeeById(employeeId);
-			if (employee.isPresent() == true) return employee.get();
-		} catch (JsonParseException e) {
+			employeeId = ((EmployeeModel) SerializationUtil.getBean(
+					request, EmployeeModel.class)).getEmplid();
+			return new ResponseEntity<String>(SerializationUtil.getJson(
+					emplService.getEmployeeById(employeeId.toString())), 
+					HttpStatus.OK);
+			} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
 			e.printStackTrace();
@@ -61,13 +71,15 @@ public class EmployeeController {
 		return null;
 	}
 	
-	@GetMapping("/empl/example")
+	@PostMapping("/empl/example")
 	public @ResponseBody String getEmployeeByExample(@RequestBody String empl) {
 		Employee employee = null;
 		EmployeeModel employeeModel = null;
 		try {
-			employeeModel = new ObjectMapper().readValue(empl, EmployeeModel.class);
-			employee = EmployeeTransformer.transformEmployeeModel(employeeModel);
+			employeeModel = new ObjectMapper().readValue(empl, 
+					EmployeeModel.class);
+			employee = EmployeeTransformer.transformEmployeeModel(
+					employeeModel);
 			//employee = emplService.getEmployeeByExample(employee);
 			
 		} catch (JsonParseException e) {

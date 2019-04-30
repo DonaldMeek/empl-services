@@ -1,6 +1,7 @@
 package com.meek.donald.employees;
 
 import com.meek.donald.Employee;
+import com.meek.donald.model.employee.EmployeeModel;
 
 public class EmployeeTransformer {
 

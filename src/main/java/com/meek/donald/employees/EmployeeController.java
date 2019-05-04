@@ -1,12 +1,10 @@
 package com.meek.donald.employees;
 
 import java.io.IOException;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.meek.donald.Employee;
 import com.meek.donald.common.SerializationUtil;
 import com.meek.donald.model.employee.EmployeeModel;
+import com.meek.donald.model.employee.Employee;
+import com.meek.donald.model.employee.EmployeeTransformer;
 
 @RestController
 @RequestMapping("/service")
@@ -30,11 +29,9 @@ public class EmployeeController {
 	@PostMapping(value="/empl", consumes=MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody String saveEmployee(@RequestBody String empl) {
 		Employee employee = null;
-		EmployeeModel employeeModel = null;
 		try {
-			employeeModel = (EmployeeModel) SerializationUtil.getBean(
-					empl, EmployeeModel.class);
-			employee = EmployeeTransformer.transformEmployeeModel(employeeModel);
+			employee = (Employee) SerializationUtil.getBean(
+					empl, Employee.class);
 			employee = emplService.saveEmployee(employee);
 			
 		} catch (JsonParseException e) {
@@ -55,8 +52,8 @@ public class EmployeeController {
 			@RequestBody String request) {
 		Object employeeId = null;
 		try {
-			employeeId = ((EmployeeModel) SerializationUtil.getBean(
-					request, EmployeeModel.class)).getEmplid();
+			employeeId = ((Employee) SerializationUtil.getBean(
+					request, Employee.class)).getEmplid();
 			return new ResponseEntity<String>(SerializationUtil.getJson(
 					emplService.getEmployeeById(employeeId.toString())), 
 					HttpStatus.OK);

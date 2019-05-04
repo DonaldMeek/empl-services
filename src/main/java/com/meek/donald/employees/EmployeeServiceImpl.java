@@ -4,7 +4,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.meek.donald.Employee;
+import com.meek.donald.model.employee.Employee;
 import com.meek.donald.EmployeeRepository;
 
 @Service
